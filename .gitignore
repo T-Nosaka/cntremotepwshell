@@ -1,0 +1,19 @@
+# Visual Studio directories
+.vs/
+
+# Build outputs
+cntremotepwshell/bin/
+cntremotepwshell/obj/
+cntremotepwshell/runtimes
+
+PSWSMan.Lib/bin/
+PSWSMan.Lib/obj/
+
+
+# IDE cache and settings
+.vscode/
+*.suo
+
+# User-specific files
+*.user
+

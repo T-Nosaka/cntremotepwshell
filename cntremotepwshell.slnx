@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/ソリューション項目/">
+    <File Path="cntremotepwshell/PSWSMan.Lib/PSWSMan.Lib.csproj" />
+  </Folder>
+  <Project Path="cntremotepwshell/cntremotepwshell.csproj" />
+  <Project Path="PSWSMan.Lib/PSWSMan.Lib.csproj" />
+</Solution>
