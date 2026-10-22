@@ -25,10 +25,16 @@ internal class Program
             return;
         }
 
-        if (args.Any(arg => arg.StartsWith('-') && arg is not "--stdio" and not "--http"))
+        if (args.Any(arg => arg.StartsWith('-') && arg is not "--stdio" and not "--http" and not "--probe"))
         {
             Console.Error.WriteLine("usage: cntremotepwshell [--stdio | --http]");
             Environment.ExitCode = 2;
+            return;
+        }
+
+        if (args.Contains("--probe"))
+        {
+            Environment.ExitCode = await ProbeMain.Run();
             return;
         }
 

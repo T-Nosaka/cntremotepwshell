@@ -35,18 +35,20 @@ public class RemoteCommandTool
         "httpモード用 " +
         "WinRM 接続先をメモリ上のプロファイルとして登録し、UUID を返します。" +
         "以降の execute_command にはこの UUID を渡します。パスワードは再送しません。" +
-        "プロファイルはファイルへ書きません。最終利用から30分、または登録から8時間で破棄されます。")]
+        "プロファイルはファイルへ書きません。最終利用から30分、または登録から8時間で破棄されます。" +
+        "https を省略すると HTTPS 5986。false のときだけ HTTP 5985 です。")]
     public string RegisterProfile(
         ProfileStore store,
-        [Description("WinRM のホスト名または IP。ポートは 5986 固定。")] string host,
+        [Description("WinRM のホスト名または IP。")] string host,
         [Description("WinRM のユーザー名。DOMAIN\\user 形式も可。")] string user,
-        [Description("WinRM のパスワード。この呼び出し以外では送信しない。")] string password)
+        [Description("WinRM のパスワード。この呼び出し以外では送信しない。")] string password,
+        [Description("true または省略で HTTPS 5986。false で HTTP 5985。コマンドと出力は平文になります。")] bool https = true)
     {
-        var id = store.Register(host, user, password);
+        var id = store.Register(host, user, password, https);
         var profile = store.Peek(id)
             ?? throw new InvalidOperationException("プロファイルの登録に失敗しました。");
 
-        return $"id={profile.Id}\r\nhost={profile.Host}\r\nuser={profile.UserName}\r\nexpires={Format(profile.ExpiresAt)}";
+        return $"id={profile.Id}\r\nhost={profile.Host}\r\nuser={profile.UserName}\r\ntransport={Transport(profile)}\r\nexpires={Format(profile.ExpiresAt)}";
     }
 
     /// <summary>
@@ -68,7 +70,7 @@ public class RemoteCommandTool
         if (remaining < TimeSpan.Zero)
             remaining = TimeSpan.Zero;
 
-        return $"id={profile.Id}\r\nhost={profile.Host}\r\nuser={profile.UserName}\r\nlast_used={Format(profile.LastUsedAt)}\r\nexpires={Format(profile.ExpiresAt)}\r\nremaining_sec={(int)remaining.TotalSeconds}";
+        return $"id={profile.Id}\r\nhost={profile.Host}\r\nuser={profile.UserName}\r\ntransport={Transport(profile)}\r\nlast_used={Format(profile.LastUsedAt)}\r\nexpires={Format(profile.ExpiresAt)}\r\nremaining_sec={(int)remaining.TotalSeconds}";
     }
 
     /// <summary>
@@ -191,6 +193,9 @@ public class RemoteCommandTool
 
         return settings;
     }
+
+    private static string Transport(ProfileStore.Profile profile) =>
+        profile.UseHttps ? "https:5986" : "http:5985";
 
     private static string Format(DateTimeOffset value) =>
         value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss zzz");

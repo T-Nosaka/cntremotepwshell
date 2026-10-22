@@ -69,10 +69,11 @@ HTTP の待受は既定で `http://0.0.0.0:8080` です。`ASPNETCORE_URLS` で�
 
 | 変数 | 内容 |
 |---|---|
-| `WINRM_HOST` | ホスト名または IP。ポートは 5986 固定 |
+| `WINRM_HOST` | ホスト名または IP |
 | `WINRM_USER` | ユーザー名。`DOMAIN\user` も可 |
 | `WINRM_PASSWORD` | パスワード |
-| `WINRM_SKIP_CERT_CHECK` | 証明書検証を省略する。未設定、`true`、`1` で省略。それ以外で検証する |
+| `WINRM_HTTPS` | 未設定、`true`、`1` で HTTPS 5986。`false` または `0` で HTTP 5985。HTTP ではコマンドと出力が平文になる |
+| `WINRM_SKIP_CERT_CHECK` | 証明書検証を省略する。未設定、`true`、`1` で省略。それ以外で検証する。HTTP では使わない |
 
 stdio で UUID 無しの `execute_command` を使う場合、この 3 つ（ホスト、ユーザー、パスワード）が起動時に必要です。
 
@@ -84,7 +85,8 @@ stdio で UUID 無しの `execute_command` を使う場合、この 3 つ（ホ�
 - 絶対期限: 登録から 8 時間
 - 期限を延ばすのは `execute_command` だけです。`profile_status` では延ばしません
 - パスワードは `register_profile` の引数に一度だけ載ります。応答、状態確認、ログには出しません
-- プロファイル経由の接続は、証明書検証を省略します
+- 既定は HTTPS 5986。`register_profile` の `https` を `false` にしたときだけ HTTP 5985
+- HTTPS のプロファイルは、証明書検証を省略します。HTTP ではコマンドと出力が平文になります
 
 UUID を知っていれば、そのプロファイルを使えます。一覧を返すツールはありません。
 
@@ -103,6 +105,7 @@ UUID を知っていれば、そのプロファイルを使えます。一覧を
 | `host` | ホスト名または IP |
 | `user` | ユーザー名 |
 | `password` | パスワード |
+| `https` | 省略または `true` で HTTPS 5986。`false` で HTTP 5985 |
 
 ### execute_command
 

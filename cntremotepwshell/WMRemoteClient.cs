@@ -1,3 +1,4 @@
+using System.Text;
 using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -123,11 +124,12 @@ internal sealed class WMRemoteClient : IDisposable
     private static async Task<byte[]> ReadBodyAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         byte[] body = await response.Content.ReadAsByteArrayAsync(cancellationToken).ConfigureAwait(false);
-        if (!response.IsSuccessStatusCode && body.Length == 0)
+        if (!response.IsSuccessStatusCode)
         {
             var headers = string.Join("; ", response.Headers.Select(h => $"{h.Key}={string.Join(",", h.Value)}"));
+            var textBody = Encoding.UTF8.GetString(body);
             throw new WSManException(
-                $"WinRM HTTP {(int)response.StatusCode} {response.ReasonPhrase} (empty body) {headers}");
+                $"WinRM HTTP {(int)response.StatusCode} {response.ReasonPhrase} bodyLen={body.Length} {headers} body={textBody}");
         }
 
         return body;

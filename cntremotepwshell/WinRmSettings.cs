@@ -1,7 +1,7 @@
 namespace cntremotepwshell;
 
 /// <summary>
-/// WinRM 接続情報。stdio と HTTP のどちらでも同じ環境変数から読む。
+/// WinRM 接続情報。stdio の UUID 無し呼び出しだけ環境変数から読む。
 /// </summary>
 public sealed class WinRmSettings
 {
@@ -12,7 +12,7 @@ public sealed class WinRmSettings
 
     /// <summary>
     /// 接続URI
-    /// 例)https://{host}:5986/wsman
+    /// HTTPS は https://{host}:5986/wsman、HTTP は http://{host}:5985/wsman
     /// </summary>
     public required Uri ConnectionUri { get; init; }
 
@@ -44,14 +44,39 @@ public sealed class WinRmSettings
         var skipCertificateCheck = string.IsNullOrWhiteSpace(skip)
             || skip.Equals("true", StringComparison.OrdinalIgnoreCase)
             || skip == "1";
+        var https = IsEnabled(Environment.GetEnvironmentVariable("WINRM_HTTPS"), defaultValue: true);
 
         return new WinRmSettings
         {
-            ConnectionUri = new Uri($"https://{host}:5986/wsman"),
+            ConnectionUri = CreateConnectionUri(host, https),
             UserName = user,
             Password = password,
             SkipCertificateCheck = skipCertificateCheck,
         };
+    }
+
+    /// <summary>
+    /// HTTPS は 5986、HTTP は 5985。ポートの任意指定はしない。
+    /// </summary>
+    public static Uri CreateConnectionUri(string host, bool https)
+    {
+        var scheme = https ? "https" : "http";
+        var port = https ? 5986 : 5985;
+        return new Uri($"{scheme}://{host}:{port}/wsman");
+    }
+
+    /// <summary>
+    /// 未設定は defaultValue。true / 1 で有効、false / 0 で無効。
+    /// </summary>
+    public static bool IsEnabled(string? value, bool defaultValue)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return defaultValue;
+        if (value.Equals("true", StringComparison.OrdinalIgnoreCase) || value == "1")
+            return true;
+        if (value.Equals("false", StringComparison.OrdinalIgnoreCase) || value == "0")
+            return false;
+        return defaultValue;
     }
 
     /// <summary>

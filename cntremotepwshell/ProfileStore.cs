@@ -11,7 +11,7 @@ public sealed class ProfileStore
     private readonly object _gate = new();
     private readonly Dictionary<string, Profile> _profiles = new(StringComparer.Ordinal);
 
-    public string Register(string host, string user, string password)
+    public string Register(string host, string user, string password, bool https = true)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(host);
         ArgumentException.ThrowIfNullOrWhiteSpace(user);
@@ -24,6 +24,7 @@ public sealed class ProfileStore
             Host = host.Trim(),
             UserName = user.Trim(),
             Password = password,
+            UseHttps = https,
             CreatedAt = now,
             LastUsedAt = now,
         };
@@ -98,6 +99,7 @@ public sealed class ProfileStore
         public required string Host { get; init; }
         public required string UserName { get; init; }
         public required string Password { get; init; }
+        public bool UseHttps { get; init; } = true;
         public required DateTimeOffset CreatedAt { get; init; }
         public DateTimeOffset LastUsedAt { get; set; }
 
@@ -110,7 +112,7 @@ public sealed class ProfileStore
         {
             return new WinRmSettings
             {
-                ConnectionUri = new Uri($"https://{Host}:5986/wsman"),
+                ConnectionUri = WinRmSettings.CreateConnectionUri(Host, UseHttps),
                 UserName = UserName,
                 Password = Password,
                 SkipCertificateCheck = true,
