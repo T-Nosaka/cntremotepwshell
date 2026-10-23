@@ -7,8 +7,10 @@ LibreChat や Claude Desktop など、MCP クライアントからリモート W
 ## 必要条件
 
 - 実行側: .NET 10
-- 対象 Windows: WinRM over HTTPS（ポート 5986）が有効であること
+- 対象 Windows: WinRM が有効であること。HTTPS（ポート 5986）または HTTP（ポート 5985）
 - 認証: Negotiate。Linux では Devolutions SSPI を使います
+- HTTP 5985: 認証後の SOAP を WinRM のメッセージ暗号化（`multipart/encrypted`）で送受信します。コマンドと出力は平文では送りません
+- HTTPS 5986: 転送が TLS なので、SOAP は平文のまま送ります
 - Linux: ICU。素の Ubuntu 26.04 では `libicu78` が必要でした
 
 ```bash
@@ -21,7 +23,7 @@ sudo apt install libicu78
 Enable-PSRemoting -Force
 ```
 
-HTTPS リスナー（5986）が無い環境では、別途リスナーの作成が必要です。
+5986 が開いていないサーバーでも、HTTP 5985 のリスナーがあれば接続できます。その場合はメッセージ暗号化が必要で、このサーバーが対応します。
 
 ## ビルド
 
@@ -72,7 +74,7 @@ HTTP の待受は既定で `http://0.0.0.0:8080` です。`ASPNETCORE_URLS` で�
 | `WINRM_HOST` | ホスト名または IP |
 | `WINRM_USER` | ユーザー名。`DOMAIN\user` も可 |
 | `WINRM_PASSWORD` | パスワード |
-| `WINRM_HTTPS` | 未設定、`true`、`1` で HTTPS 5986。`false` または `0` で HTTP 5985。HTTP ではコマンドと出力が平文になる |
+| `WINRM_HTTPS` | 未設定、`true`、`1` で HTTPS 5986。`false` または `0` で HTTP 5985。HTTP ではメッセージ暗号化する |
 | `WINRM_SKIP_CERT_CHECK` | 証明書検証を省略する。未設定、`true`、`1` で省略。それ以外で検証する。HTTP では使わない |
 
 stdio で UUID 無しの `execute_command` を使う場合、この 3 つ（ホスト、ユーザー、パスワード）が起動時に必要です。
@@ -86,7 +88,7 @@ stdio で UUID 無しの `execute_command` を使う場合、この 3 つ（ホ�
 - 期限を延ばすのは `execute_command` だけです。`profile_status` では延ばしません
 - パスワードは `register_profile` の引数に一度だけ載ります。応答、状態確認、ログには出しません
 - 既定は HTTPS 5986。`register_profile` の `https` を `false` にしたときだけ HTTP 5985
-- HTTPS のプロファイルは、証明書検証を省略します。HTTP ではコマンドと出力が平文になります
+- HTTPS のプロファイルは、証明書検証を省略します。HTTP ではメッセージ暗号化します
 
 UUID を知っていれば、そのプロファイルを使えます。一覧を返すツールはありません。
 
@@ -105,7 +107,7 @@ UUID を知っていれば、そのプロファイルを使えます。一覧を
 | `host` | ホスト名または IP |
 | `user` | ユーザー名 |
 | `password` | パスワード |
-| `https` | 省略または `true` で HTTPS 5986。`false` で HTTP 5985 |
+| `https` | 省略または `true` で HTTPS 5986。`false` で HTTP 5985（メッセージ暗号化） |
 
 ### execute_command
 

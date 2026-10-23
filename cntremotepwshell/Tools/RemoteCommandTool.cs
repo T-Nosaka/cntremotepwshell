@@ -42,7 +42,7 @@ public class RemoteCommandTool
         [Description("WinRM のホスト名または IP。")] string host,
         [Description("WinRM のユーザー名。DOMAIN\\user 形式も可。")] string user,
         [Description("WinRM のパスワード。この呼び出し以外では送信しない。")] string password,
-        [Description("true または省略で HTTPS 5986。false で HTTP 5985。コマンドと出力は平文になります。")] bool https = true)
+        [Description("true または省略で HTTPS 5986。false で HTTP 5985。HTTP ではメッセージ暗号化する。")] bool https = true)
     {
         var id = store.Register(host, user, password, https);
         var profile = store.Peek(id)
