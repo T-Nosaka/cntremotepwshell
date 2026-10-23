@@ -17,3 +17,5 @@ PSWSMan.Lib/obj/
 # User-specific files
 *.user
 
+# tmp
+_probe
