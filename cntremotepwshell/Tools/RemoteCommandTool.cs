@@ -95,6 +95,7 @@ public class RemoteCommandTool
         "対象Windowsで、WinRMが許可されている必要があります。Powershell(管理者)で、Enable-PSRemoting -Force を実行して下さい。" +
         "呼び出しごとにシェルを作り、終わったら破棄します。カレントディレクトリや変数は次の呼び出しへ残りません。" +
         "渡した文字列は powershell.exe -NoProfile -NonInteractive -Command に渡します。" +
+        "[Console]::OutputEncoding を UTF-8にすることを推奨します。" +
         "HTTPモード では register_profile が返した UUID が必須です。stdioモード では UUID を省略すると環境変数の接続先を使います。")]
     public async Task<string> ExecuteCommand(
         ProfileStore store,

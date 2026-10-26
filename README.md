@@ -162,3 +162,9 @@ HTTP では、先に `register_profile` で UUID を取得し、以降の `execu
 ## ライセンス
 
 [MIT](LICENSE)
+
+## Acknowledgments / 謝辞
+本プロジェクトのWinRM通信等の実装において、以下の素晴らしいオープンソースプロジェクトを参考に、またはソースコードを借用しています。
+- [PSWSMan](https://github.com/jborean93/PSWSMan) - Copyright (c) 2019 Jordan Borean (MIT License)
+
+素晴らしい成果物を公開してくださっている作者様に深く感謝いたします。
